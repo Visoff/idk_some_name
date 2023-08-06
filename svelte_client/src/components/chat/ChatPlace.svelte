@@ -1,12 +1,28 @@
 <script>
 	import Message from "./Message.svelte";
-
+    import { CurrentChat } from "$lib";
 </script>
 <div class="flex-1 flex flex-col items-center gap-1">
     <div class="
-        h-[3.5rem] w-full
+        h-[3.5rem] w-full flex p-2 gap-2
     ">
-        Top bar
+        <button class="
+            aspect-square h-full
+            bg-blue-200
+            md:hidden
+        " on:click={() => {$CurrentChat = false}}></button>
+        <div class="
+            aspect-square rounded-full h-full
+            bg-blue-200
+        "></div>
+        <div class="
+            flex-1 h-full
+            bg-blue-200
+        "></div>
+        <div class="
+            aspect-square h-full
+            bg-blue-200
+        "></div>
     </div>
     <div class="flex-1 w-full lg:w-96 bg-blue-100">
         <Message />

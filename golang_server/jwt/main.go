@@ -2,7 +2,6 @@ package jwt
 
 import (
 	"errors"
-	"time"
 
 	"github.com/golang-jwt/jwt"
 )
@@ -22,7 +21,6 @@ func Use() *Controller {
 func (c *Controller) Encode(data interface{}) (string, error) {
 	claims := jwt.MapClaims{
 		"data": data,
-		"exp":  time.Now().Add(time.Hour).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(c.SecretKey)
