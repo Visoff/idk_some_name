@@ -5,33 +5,36 @@ CREATE TYPE MessageContentType AS ENUM (
 );
 
 CREATE TABLE "User" (
-  "id" uuid PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+  "id" uuid PRIMARY KEY NOT NULL DEFAULT (gen_random_uuid()),
+  "clerk_id" varchar NOT NULL,
   "username" varchar NOT NULL,
-  "created_at" timestamp NOT NULL DEFAULT now(),
-  "last_update" timestamp NOT NULL DEFAULT now()
+  "created_at" timestamp NOT NULL DEFAULT (now()),
+  "last_update" timestamp NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "ChatMember" (
-  "id" uuid PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-  "User_id" uuid,
-  "Chat_id" uuid,
-  "admin" bool NOT NULL DEFAULT false
+  "id" uuid PRIMARY KEY NOT NULL DEFAULT (gen_random_uuid()),
+  "User_id" uuid NOT NULL,
+  "Chat_id" uuid NOT NULL,
+  "admin" bool NOT NULL DEFAULT (false)
 );
 
 CREATE TABLE "Chat" (
-  "id" uuid PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-  "name" varchar,
-  "description" varchar NOT NULL DEFAULT ''
+  "id" uuid PRIMARY KEY NOT NULL DEFAULT (gen_random_uuid()),
+  "name" varchar NOT NULL,
+  "description" varchar NOT NULL DEFAULT '',
+  "created_at" timestamp NOT NULL DEFAULT (now()),
+  "last_update" timestamp NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "Message" (
-  "id" uuid PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+  "id" uuid PRIMARY KEY NOT NULL DEFAULT (gen_random_uuid()),
   "content" varchar NOT NULL,
-  "contentType" MessageContentType,
-  "author" uuid,
-  "Chat_id" uuid,
-  "created_at" timestamp NOT NULL DEFAULT now(),
-  "last_update" timestamp NOT NULL DEFAULT now()
+  "contentType" MessageContentType NOT NULL,
+  "author" uuid NOT NULL,
+  "Chat_id" uuid NOT NULL,
+  "created_at" timestamp NOT NULL DEFAULT (now()),
+  "last_update" timestamp NOT NULL DEFAULT (now())
 );
 
 ALTER TABLE "ChatMember" ADD FOREIGN KEY ("User_id") REFERENCES "User" ("id");

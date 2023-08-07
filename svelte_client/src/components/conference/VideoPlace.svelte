@@ -6,6 +6,7 @@
     let video_tag:HTMLVideoElement;
     if (browser) {
         let pc = new RTCPeerConnection({});
+        pc.onicecandidate = console.log
         onMount(() => {
           if ("getUserMedia" in navigator) {
             // @ts-ignore

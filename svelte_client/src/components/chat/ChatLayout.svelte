@@ -19,14 +19,13 @@
         Search
     </div>
     <!-- Chats list -->
-    <ChatList chats={[
-        {
-            name:"Saved messages",
-            last_message:"hello"
-        }
-    ]}/>
+    <ChatList />
 </div>
 <div class=" flex-[3] flex">
     <!-- chat_app/dialog -->
-    <ChatPlace />
+    {#if $CurrentChat}
+        <ChatPlace />
+    {:else}
+        hello
+    {/if}
 </div>

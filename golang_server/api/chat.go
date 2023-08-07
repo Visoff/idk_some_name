@@ -4,82 +4,73 @@ import (
 	"encoding/json"
 	"fmt"
 	"idk/main/db"
-	"idk/main/jwt"
+	"io"
 	"net/http"
-	"strings"
 )
 
 func ApplyChatHandlers() {
-	Mux.HandleFunc("/api/chat", func(w http.ResponseWriter, r *http.Request) {
+	Mux.HandleFunc("/api/user/chats", func(w http.ResponseWriter, r *http.Request) {
+		AllowCors(&w)
 		switch r.Method {
 		case "GET":
-			if (r.Header.Get("Authorization")) == "" {
-				w.WriteHeader(400)
-				w.Write([]byte("Provide Authorization header(bearer)"))
-			}
-			user_token := strings.Join(strings.Split(r.Header.Get("Authorization"), " ")[1:], " ")
-			user_id, err := jwt.Use().Verify(user_token)
-			if err != nil {
-				w.WriteHeader(500)
-				w.Write([]byte(fmt.Sprint(err)))
+			user_id := AuthorizationJwt(&w, &r)
+			if user_id == nil {
 				return
 			}
-			chats, err := db.Query(`select "Chat".* from "Chat" inner join "ChatMember" on "ChatMember"."Chat_id" = "Chat".id and "ChatMember"."User_id" = '%v'`, fmt.Sprint(user_id))
+			chats, err := db.Query(`select * from "Chat" inner join "ChatMember" on "ChatMember"."Chat_id" = "Chat"."id" where "ChatMember"."User_id" = '%v'`, fmt.Sprint(user_id))
 			if err != nil {
 				w.WriteHeader(500)
-				w.Write([]byte(fmt.Sprint(err)))
+				w.Write([]byte(err.Error()))
 				return
 			}
-			chats_json, err := json.Marshal(chats)
-			if err != nil {
-				w.WriteHeader(500)
-				w.Write([]byte(fmt.Sprint(err)))
-				return
-			}
-			w.Header().Add("Content-Type", "application/json")
+			chats_json, _ := json.Marshal(chats)
 			w.WriteHeader(200)
 			w.Write(chats_json)
 			return
+		}
+	})
+
+	Mux.HandleFunc("/api/chat/", func(w http.ResponseWriter, r *http.Request) {
+		AllowCors(&w)
+		switch r.Method {
 		case "POST":
-			if (r.Header.Get("Authorization")) == "" {
-				w.WriteHeader(400)
-				w.Write([]byte("Provide Authorization header(bearer)"))
+			user_id := AuthorizationJwt(&w, &r)
+			if user_id == nil {
+				return
 			}
-			user_token := strings.Join(strings.Split(r.Header.Get("Authorization"), " ")[1:], " ")
-			user_id, err := jwt.Use().Verify(user_token)
+			body_json, err := io.ReadAll(r.Body)
 			if err != nil {
-				w.WriteHeader(500)
-				w.Write([]byte(fmt.Sprint(err)))
+				w.WriteHeader(400)
+				w.Write([]byte("Provide body"))
 				return
 			}
 			var body map[string]string
-			decoder := json.NewDecoder(r.Body)
-			err = decoder.Decode(&body)
-			if err != nil {
-				w.WriteHeader(500)
-				w.Write([]byte(err.Error()))
+			json.Unmarshal(body_json, &body)
+			if body == nil {
+				w.WriteHeader(400)
+				w.Write([]byte("Body must be json"))
 				return
 			}
 			if body["name"] == "" || body["description"] == "" {
-				w.WriteHeader(500)
-				w.Write([]byte("Provide name and description"))
+				w.WriteHeader(400)
+				w.Write([]byte(`Body must have keys: ["name", "description"]`))
 				return
 			}
-			created, err := db.Query(`insert into "Chat"("name") values('%v') returning *`, body["name"])
+			inserted, err := db.Query(`insert into "Chat"("name", "description") values('%v', '%v') returning *`, body["name"], body["description"])
 			if err != nil {
 				w.WriteHeader(500)
 				w.Write([]byte(err.Error()))
 				return
 			}
-			_, err = db.Query(`insert into "ChatMember"("Chat_id", "User_id") values('%v', '%v')`, created[0]["id"], fmt.Sprint(user_id))
+			_, err = db.Query(`insert into "ChatMember"("User_id", "Chat_id") values('%v', '%v')`, fmt.Sprint(user_id), inserted[0]["id"])
 			if err != nil {
 				w.WriteHeader(500)
 				w.Write([]byte(err.Error()))
 				return
 			}
-			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(200)
-			w.Write([]byte(fmt.Sprint(created[0])))
+			w.Write([]byte("ok"))
+			return
 		}
 	})
 }
