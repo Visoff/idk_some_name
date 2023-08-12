@@ -14,6 +14,7 @@ jobs:
                 password: 17022006a1
                 script: |
                     cd /home/ilya/messenger
+                    git pull github main
                     docker compose down
                     docker image prune
                     docker compose up -d
