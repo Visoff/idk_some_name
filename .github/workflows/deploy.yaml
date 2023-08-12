@@ -1,0 +1,19 @@
+name: deploy on remote server
+
+on: [push, pull_request]
+jobs:
+    build:
+        name: deploy
+        runs-on: ubuntu-latest
+        steps:
+            - name: deploy
+              uses: appleboy/ssh-action@v1.0.0
+              with:
+                host: 82.147.71.182
+                username: ilya
+                password: 17022006a1
+                script: |
+                    cd /home/ilya/messenger
+                    docker compose down
+                    docker image prune
+                    docker compose up -d
