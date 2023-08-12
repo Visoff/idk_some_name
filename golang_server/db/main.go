@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 
 	_ "github.com/lib/pq"
@@ -16,6 +17,7 @@ func UrlFromEnv(env func(string, string) string) string {
 func Connect(url string) error {
 	// return nil
 	var err error
+	fmt.Println(url)
 	Db, err = sql.Open("postgres", url)
 	if err != nil {
 		return err
