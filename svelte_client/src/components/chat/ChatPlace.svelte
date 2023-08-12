@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Message from "./Message.svelte";
+	import MessageList from "./MessageList.svelte";
     import { CurrentChat } from "$lib";
 	import MessageInput from "./MessageInput.svelte";
 </script>
@@ -25,8 +25,8 @@
             bg-blue-200
         "></div>
     </div>
-    <div class="flex-1 w-full lg:w-96 bg-blue-100">
-        <Message />
+    <div class="flex-1 overflow-y-auto w-full lg:w-96 bg-blue-100">
+        <MessageList />
     </div>
     <div class="h-[3.375rem] flex p-3 pt-0 w-full lg:w-96 justify-center">
         <div class="flex-1 flex w-full gap-2">

@@ -37,6 +37,19 @@ CREATE TABLE "Message" (
   "last_update" timestamp NOT NULL DEFAULT (now())
 );
 
+CREATE TABLE "Call" (
+  "id" uuid PRIMARY KEY NOT NULL DEFAULT (gen_random_uuid()),
+  "offer" json NOT NULL,
+  "answer" json
+);
+
+CREATE TABLE "IceCandidates" (
+  "id" uuid PRIMARY KEY NOT NULL DEFAULT (gen_random_uuid()),
+  "Call_id" uuid NOT NULL,
+  "Candidate" varchar,
+  "added_on" timestamp NOT NULL DEFAULT now()
+);
+
 ALTER TABLE "ChatMember" ADD FOREIGN KEY ("User_id") REFERENCES "User" ("id");
 
 ALTER TABLE "ChatMember" ADD FOREIGN KEY ("Chat_id") REFERENCES "Chat" ("id");
@@ -44,3 +57,5 @@ ALTER TABLE "ChatMember" ADD FOREIGN KEY ("Chat_id") REFERENCES "Chat" ("id");
 ALTER TABLE "Message" ADD FOREIGN KEY ("author") REFERENCES "User" ("id");
 
 ALTER TABLE "Message" ADD FOREIGN KEY ("Chat_id") REFERENCES "Chat" ("id");
+
+ALTER TABLE "IceCandidates" ADD FOREIGN KEY ("Call_id") REFERENCES "Call" ("id");

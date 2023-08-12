@@ -2,7 +2,7 @@
 	import { browser } from "$app/environment";
 	import Chat from "./Chat.svelte";
 
-    let chats:{id:string, name:string, description:string}[] = []
+    let chats:any[] = []
     if (browser) {
         fetch("http://localhost:8080/api/user/chats", {
             method:"GET",
@@ -11,14 +11,9 @@
             }
         }).then(response => response.json())
         .then(c => {
+            console.log(c)
             if (!c || c.length == 0) {
-                chats = [
-                    {
-                        id:"1",
-                        name:"hello",
-                        description:"world"
-                    }
-                ]
+                chats = []
                 return
             }
             chats = c
@@ -41,11 +36,31 @@
             })
         })
     }
+
+    if (browser) {
+        let longpoll = new Date().toISOString()
+        setInterval(() => {
+            fetch("http://localhost:8080/api/user/chats", {
+                method:"GET",
+                headers:{
+                    Authorization:`Bearer ${localStorage.getItem("user_token")}`,
+                    LongPoll:longpoll
+                }
+            }).then(response => response.json())
+            .then(c => {
+                if (!c || c.length == 0) {
+                    return
+                }
+                longpoll = c[0].last_update
+                chats = [...chats, ...c]
+            }).catch(console.error)
+        }, 500)
+    }
 </script>
 
 <div class="flex-1 flex flex-col gap-2">
     {#each chats as chat}
-        <Chat id={chat.id} name={chat.name} description={chat.description} />
+        <Chat id={chat.id} name={chat.name} description={chat.lastMessage||chat.description} />
     {/each}
     <button
         class="mx-4 py-1 rounded-2xl border-blue-500 border hover:bg-blue-200"

@@ -17,7 +17,34 @@ func ApplyChatHandlers() {
 			if user_id == nil {
 				return
 			}
-			chats, err := db.Query(`select * from "Chat" inner join "ChatMember" on "ChatMember"."Chat_id" = "Chat"."id" where "ChatMember"."User_id" = '%v'`, fmt.Sprint(user_id))
+			req_time := r.Header.Get("LongPoll")
+			var chats []map[string]interface{}
+			var err error
+			query := `
+			SELECT
+				"Chat".*,
+				COALESCE((
+					SELECT "Message"."content"
+					FROM "Message"
+					WHERE "created_at" = (
+						SELECT MAX("Message"."created_at")
+						FROM "Message"
+						WHERE "Message"."Chat_id" = "Chat"."id"
+					)
+				), '') "lastMessage"
+			FROM "Chat"
+			INNER JOIN "ChatMember" ON "ChatMember"."Chat_id" = "Chat"."id"
+			WHERE "ChatMember"."User_id" = '%v'`
+			if req_time != "" {
+				query += `
+			and "Chat"."last_update" > '` + req_time + `'
+				`
+			}
+			query += `
+			GROUP BY "Chat"."id"
+			ORDER BY "Chat"."last_update" DESC;
+			`
+			chats, err = db.Query(query, fmt.Sprint(user_id))
 			if err != nil {
 				w.WriteHeader(500)
 				w.Write([]byte(err.Error()))
@@ -62,7 +89,7 @@ func ApplyChatHandlers() {
 				w.Write([]byte(err.Error()))
 				return
 			}
-			_, err = db.Query(`insert into "ChatMember"("User_id", "Chat_id") values('%v', '%v')`, fmt.Sprint(user_id), inserted[0]["id"])
+			_, err = db.Query(`insert into "ChatMember"("User_id", "Chat_id") values('%v', '%v')`, fmt.Sprint(user_id), fmt.Sprint(inserted[0]["id"]))
 			if err != nil {
 				w.WriteHeader(500)
 				w.Write([]byte(err.Error()))

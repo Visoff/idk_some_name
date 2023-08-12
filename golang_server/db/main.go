@@ -24,8 +24,8 @@ func Connect(url string) error {
 	return err
 }
 
-func Scan(rows *sql.Rows) ([]map[string]string, error) {
-	var result []map[string]string
+func Scan(rows *sql.Rows) ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
 	for rows.Next() {
 		row, err := ScanOne(rows)
 		if err != nil {
@@ -36,8 +36,8 @@ func Scan(rows *sql.Rows) ([]map[string]string, error) {
 	return result, nil
 }
 
-func ScanOne(rows *sql.Rows) (map[string]string, error) {
-	data := make(map[string]string)
+func ScanOne(rows *sql.Rows) (map[string]interface{}, error) {
+	data := make(map[string]interface{})
 
 	columns, _ := rows.Columns()
 	result := make([]string, len(columns))
@@ -62,15 +62,15 @@ func PrepareQuery(template string, vars ...string) string {
 	}
 	result := splited[0]
 	for i, variable := range vars {
-		result = result + variable + splited[i+1]
+		result = result + strings.Join(strings.Split(variable, "'"), "|") + splited[i+1]
 	}
 	return result
 }
 
-func Query(template string, vars ...string) ([]map[string]string, error) {
+func Query(template string, vars ...string) ([]map[string]interface{}, error) {
 	rows, err := Db.Query(PrepareQuery(template, vars...))
 	if err != nil {
-		return make([]map[string]string, 0), err
+		return make([]map[string]interface{}, 0), err
 	}
 	return Scan(rows)
 }

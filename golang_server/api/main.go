@@ -15,6 +15,7 @@ func Init() {
 	ApplyMessageHandlers()
 	ApplyUserHandlers()
 	ApplyChatHandlers()
+	ApplyConference()
 	err := http.ListenAndServe(":8080", Mux)
 	fmt.Println(err)
 }

@@ -29,7 +29,7 @@
             // @ts-ignore
             window.signOut = clerk.signOut
             $clerk_ready = true
-        })()
+        })().catch(() => undefined)
     }
 </script>
 <div class="absolute top-0 left-0 w-screen h-screen flex overflow-hidden">

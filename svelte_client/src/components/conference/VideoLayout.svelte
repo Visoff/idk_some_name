@@ -1,6 +1,7 @@
 <script>
 
 	import { CurrentChat } from "$lib";
+	import { call } from "$lib/rtc";
 	import ChatList from "../chat/ChatList.svelte";
 	import VideoPlace from "./VideoPlace.svelte";
 
@@ -14,17 +15,7 @@
     transition-all ease-linear
 `}>
     <!-- video_app/planned -->
-    <!-- Search bar -->
-    <div class="w-full h-[3.5rem] grid place-items-center">
-        Search
-    </div>
-    <!-- Conf list -->
-    <ChatList chats={[
-        {
-            name:"Saved messages",
-            last_message:"hello"
-        }
-    ]}/>
+    <button>call</button>
 </div>
 <div class=" flex-[3] flex">
     <!-- video_app/dialog -->

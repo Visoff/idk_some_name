@@ -7,7 +7,7 @@
 </script>
 
 <div class={`
-    flex-1 flex flex-col
+    flex-1 flex flex-col overflow-x-hidden
     bg-[whitesmoke]
     max-md:absolute max-md:left-0 max-md:top-0 max-md:h-full max-md:w-full
     ${$CurrentChat ? "max-md:-translate-x-full" : ""}
