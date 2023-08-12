@@ -1,5 +1,6 @@
 <script lang="ts">
     import {CurrentChat} from '$lib'
+	import { host } from '$lib/env';
     let typing:Boolean = false
     function CheckTyping(e:Event&{currentTarget: HTMLInputElement}) {
         typing = (e.target as HTMLInputElement).value != ""
@@ -9,7 +10,7 @@
         e.preventDefault()
         const content = (e.target as any)[0].value
         if (content == "") return;
-        fetch("http://localhost:8080/api/message", {
+        fetch(host+"/message", {
             method:"POST",
             headers:{
                 Authorization:`Bearer ${localStorage.getItem("user_token")}`,

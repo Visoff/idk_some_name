@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { browser } from "$app/environment";
+	import { host } from "$lib/env";
 	import Chat from "./Chat.svelte";
 
     let chats:any[] = []
     if (browser) {
-        fetch("http://localhost:8080/api/user/chats", {
+        fetch(host+"/user/chats", {
             method:"GET",
             headers:{
                 Authorization:`Bearer ${localStorage.getItem("user_token")}`
@@ -25,7 +26,7 @@
         if (name == undefined) return;
         const description = prompt("Chat description")
         if (description == undefined) return;
-        fetch("http://localhost:8080/api/chat/", {
+        fetch(host+"/chat/", {
             method:"POST",
             headers:{
                 Authorization:`Bearer ${localStorage.getItem("user_token")}`,
@@ -40,7 +41,7 @@
     if (browser) {
         let longpoll = new Date().toISOString()
         setInterval(() => {
-            fetch("http://localhost:8080/api/user/chats", {
+            fetch(host+"/user/chats", {
                 method:"GET",
                 headers:{
                     Authorization:`Bearer ${localStorage.getItem("user_token")}`,

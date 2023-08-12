@@ -2,6 +2,7 @@
 	import { browser } from "$app/environment";
 	import SelectAppNav from "./SelectAppNav.svelte";
     import {clerk as clerk_import, clerk_ready} from "$lib"
+	import { host } from "$lib/env";
 
     let signOut = () => {}
     
@@ -17,7 +18,7 @@
                 return
             }
             if (localStorage.getItem("user_token") == undefined) {
-                fetch("http://localhost:8080/api/user/sign/", {
+                fetch(host+"/user/sign/", {
                     method:"POST",
                     body:clerk.user.id
                 }).then(response => response.text())

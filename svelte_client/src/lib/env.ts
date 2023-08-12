@@ -1,0 +1,1 @@
+export const host:string = "http://goserver:8080/api"

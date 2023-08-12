@@ -2,6 +2,7 @@
     import { CurrentChat } from '$lib'
 	import { browser } from "$app/environment";
 	import Message from "./Message.svelte";
+	import { host } from '$lib/env';
 
     function onChatChange(chat_id:string|false) {
         if (!browser) {
@@ -17,7 +18,7 @@
                 }
             ]
         }
-        fetch("http://localhost:8080/api/chat/messages/", {
+        fetch(host+"/chat/messages/", {
             method:"GET",
             headers:{
                 Authorization:`Bearer ${localStorage.getItem("user_token")}`,
@@ -38,7 +39,7 @@
     if (browser) {
         let last_time = new Date().toISOString()
         setInterval(() => {
-            fetch("http://localhost:8080/api/chat/messages/", {
+            fetch(host+"/chat/messages/", {
                 method:"GET",
                 headers:{
                     Authorization:`Bearer ${localStorage.getItem("user_token")}`,

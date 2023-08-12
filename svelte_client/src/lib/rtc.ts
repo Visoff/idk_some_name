@@ -1,3 +1,5 @@
+import { host } from "./env"
+
 /*const servers = {
     iceServers:[
         {
@@ -13,7 +15,7 @@
 const servers = {}
 
 function WaitForAnswer(pc:RTCPeerConnection, call:string) {
-    fetch("http://localhost:8080/api/conference/answer", {
+    fetch(host+"/conference/answer", {
         method:"GET",
         headers:{
             Call:call
@@ -36,7 +38,7 @@ function WaitForAnswer(pc:RTCPeerConnection, call:string) {
 function listenForIce(call:string, callback:(candidate:RTCIceCandidate) => void) {
     let date = new Date().toISOString()
     setInterval(() => {
-        fetch("http://localhost:8080/api/conference/icepoll", {
+        fetch(host+"/conference/icepoll", {
             method:"GET",
             headers:{
                 Call:call,
@@ -56,7 +58,7 @@ function listenForIce(call:string, callback:(candidate:RTCIceCandidate) => void)
 }
 
 function AddIceCandidate(ice:RTCIceCandidate, call:string) {
-    fetch("http://localhost:8080/api/conference/ice", {
+    fetch(host+"/conference/ice", {
         method:"POST",
         headers:{
             Call:call
@@ -73,7 +75,7 @@ export async function call(stream:MediaStream, local_video_tag:HTMLVideoElement,
         pc.addTrack(track, stream)
     });
     const offer = await pc.createOffer()
-    const call = await fetch("http://localhost:8080/api/conference/call", {
+    const call = await fetch(host+"/conference/call", {
         method:"POST",
         body:JSON.stringify({
             sdp:offer.sdp,
@@ -118,7 +120,7 @@ export async function answer(id:string, local_video_tag:HTMLVideoElement, remote
     localStream.getTracks().forEach(track => {
         pc.addTrack(track, localStream)
     })
-    const starterice = await fetch("http://localhost:8080/api/conference/ice", {
+    const starterice = await fetch(host+"/conference/ice", {
         method:"GET",
         headers:{
             Call:id
@@ -136,7 +138,7 @@ export async function answer(id:string, local_video_tag:HTMLVideoElement, remote
             stream.addTrack(track)
         })
     }
-    const offer = await (await fetch("http://localhost:8080/api/conference/call", {
+    const offer = await (await fetch(host+"/conference/call", {
         method:"GET",
         headers:{
             "Call":id
@@ -147,7 +149,7 @@ export async function answer(id:string, local_video_tag:HTMLVideoElement, remote
         pc.addIceCandidate(new RTCIceCandidate(JSON.parse(ice.Candidate)))
     })
     const answer = await pc.createAnswer()
-    fetch("http://localhost:8080/api/conference/answer", {
+    fetch(host+"/conference/answer", {
         method:"POST",
         headers:{
             "Call":id

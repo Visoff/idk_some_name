@@ -8,12 +8,7 @@ import (
 var Mux *http.ServeMux = http.NewServeMux()
 
 func Init() {
-	Mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		AllowCors(&w)
-		w.WriteHeader(200)
-		w.Write([]byte("pong"))
-	})
-	Mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
+	Mux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		AllowCors(&w)
 		w.WriteHeader(200)
 		w.Write([]byte("pong"))
