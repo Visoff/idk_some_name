@@ -16,5 +16,5 @@ jobs:
                     cd /home/ilya/messenger
                     git pull github main
                     docker compose down
-                    docker image prune
+                    docker image rm $(docker image ls -a -q)
                     docker compose up -d
