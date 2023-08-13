@@ -9,9 +9,9 @@ jobs:
             - name: deploy
               uses: appleboy/ssh-action@v1.0.0
               with:
-                host: 82.147.71.182
-                username: ilya
-                password: 17022006a1
+                host: ${{ secrets.HOST }}
+                username: ${{ secrets.USER }}
+                password: ${{ secrets.PASSWORD }}
                 script: |
                     cd /home/ilya/messenger
                     git pull github main

@@ -1,1 +1,1 @@
-export const host:string = "http://goserver:8080/api"
+export const host:string = "http://localhost:8080/api"
