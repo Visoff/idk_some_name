@@ -15,6 +15,5 @@ jobs:
                 script: |
                     cd /home/ilya/messenger
                     git pull github main
-                    docker compose down
-                    docker image rm $(docker image ls -a -q)
+                    docker compose down --rmi "local"
                     docker compose up -d
