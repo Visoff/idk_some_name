@@ -28,6 +28,10 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@clerk/clerk-js": "^4.55.0"
+		"@clerk/clerk-js": "^4.55.0",
+		"@types/auth0-js": "^9.21.0",
+		"@types/auth0-lock": "^11.27.5",
+		"auth0-js": "^9.22.1",
+		"auth0-lock": "^12.1.0"
 	}
 }

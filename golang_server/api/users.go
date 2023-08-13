@@ -8,14 +8,14 @@ import (
 )
 
 func ApplyUserHandlers() {
-	Mux.HandleFunc("/api/user/sign/", func(w http.ResponseWriter, r *http.Request) {
+	Mux.HandleFunc("/api/user/sign", func(w http.ResponseWriter, r *http.Request) {
 		AllowCors(&w)
 		switch r.Method {
 		case "POST":
 			body, err := io.ReadAll(r.Body)
 			if err != nil {
 				w.WriteHeader(400)
-				w.Write([]byte("Body = user id"))
+				w.Write([]byte("Body = user access token"))
 				return
 			}
 			user, err := db.Query(`select * from "User" where "clerk_id" = '%v'`, string(body))
