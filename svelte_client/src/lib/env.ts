@@ -1,1 +1,0 @@
-export const host:string = "http://82.147.71.182/server"
