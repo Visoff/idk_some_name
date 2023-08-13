@@ -14,20 +14,28 @@
 	import { host } from "$lib/env";
 
     if (browser) {
-        if (location.hash != "" && localStorage.getItem("user_token") == undefined) {
-            auth0.parseHash((err, res) => {
-                if (err != null) {console.error(err); return}
-                const access_token = res?.accessToken||""
-                fetch(host+"/user/sign", {
-                    method:"POST",
-                    body:access_token
-                }).then(response => response.text())
-                .then(token => {
-                    localStorage.setItem("user_token", token)
-                    window.location.replace("/")
+        if (localStorage.getItem("user_token") == undefined) {
+            if (location.hash != "") {
+                auth0.parseHash((err, res) => {
+                    if (err != null) {console.error(err); return}
+                    const access_token = res?.accessToken||""
+                    fetch(host+"/user/sign", {
+                        method:"POST",
+                        body:access_token
+                    }).then(response => response.text())
+                    .then(token => {
+                        localStorage.setItem("user_token", token)
+                        window.location.replace("/")
+                    })
+                    .catch(console.error)
                 })
-                .catch(console.error)
-            })
+            } else {
+                auth0.authorize({
+                    responseType:"token",
+                    redirectUri:location.href,
+                    domain:"dev-vrsblas6ves78ir5.us.auth0.com",
+                })
+            }
         }
     }
 </script>
