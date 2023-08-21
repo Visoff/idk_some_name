@@ -38,10 +38,10 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - goserver
-  
-  client:
-    build: ./svelte_client/
-    ports:
-      - 4173:4173
-    depends_on:
-      - goserver
+      
+  ssl:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+    # command: certonly --webroot -w /var/www/certbot --force-renewal --email ikalinin01@mail.ru -d visoff.ru -d api.visoff.ru -d www.visoff.ru --agree-tos
