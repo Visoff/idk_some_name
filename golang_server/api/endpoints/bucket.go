@@ -3,50 +3,55 @@ package endpoints
 import (
 	Http "idk/main/api/lib"
 	api_middleware "idk/main/api/middleware"
-	"idk/main/bucket"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
 func Bucket(mux *http.ServeMux) {
 	cluster := Http.Cluster(mux, "/bucket")
-	cluster.Rest("/").Use(api_middleware.AllowCors).Post(func(w http.ResponseWriter, r *http.Request) {
+	cluster.Rest("/").Use(api_middleware.AllowCors).Use(api_middleware.Auth).Post(func(w http.ResponseWriter, r *http.Request) {
+		res := Http.NewBetterResponseWriter(w)
 		elems := strings.Split(r.URL.Path, "/")
 		if elems[len(elems)-2] != "bucket" {
-			w.WriteHeader(404)
+			res.Status(404).Send("")
 			return
 		}
-		body, err := io.ReadAll(r.Body)
+		file, _, err := r.FormFile("file")
 		if err != nil {
-			w.WriteHeader(400)
-			w.Write([]byte("Body was not provided"))
+			res.Status(400).Send("Provide file")
 			return
 		}
-		err = bucket.Write(elems[len(elems)-1], body)
+		filePath := filepath.Join("bucket/static/", r.URL.Query().Get("Authorization"))
+		err = os.MkdirAll(filePath, os.ModePerm)
 		if err != nil {
-			w.WriteHeader(500)
-			w.Write([]byte(err.Error()))
+			res.Status(500).Send(err.Error())
 			return
 		}
-		w.WriteHeader(200)
-		w.Write([]byte("Success"))
+		filePath = filepath.Join(filePath, elems[len(elems)-1])
+		f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0666)
+		if err != nil {
+			res.Status(500).Send(err.Error())
+			return
+		}
+		defer file.Close()
+		defer f.Close()
+		io.Copy(f, file)
+		res.Status(200).Send("ok")
 	}).Get(func(w http.ResponseWriter, r *http.Request) {
+		res := Http.NewBetterResponseWriter(w)
 		elems := strings.Split(r.URL.Path, "/")
 		if elems[len(elems)-2] != "bucket" {
-			w.WriteHeader(404)
+			res.Status(404).Send("")
 			return
 		}
-		content, err := bucket.Read(elems[len(elems)-1])
+		content, err := os.ReadFile(filepath.Join("bucket/static/", r.URL.Query().Get("Authorization"), elems[len(elems)-1]))
 		if err != nil {
-			w.WriteHeader(404)
-			w.Write([]byte("Bucket not found"))
+			res.Status(404).Send("Bucket not found")
 			return
 		}
-		w.WriteHeader(200)
-		w.Write(content)
-	}).Apply()
-	cluster.Rest("/hello").Use(api_middleware.AllowCors).Get(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("world"))
+		res.Status(200).AddHeader("Content-Type", "application/octet-stream").Send(content)
 	}).Apply()
 }

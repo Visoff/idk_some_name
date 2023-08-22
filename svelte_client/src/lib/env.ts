@@ -1,1 +1,0 @@
-export const host:string = import.meta.env.MODE == "development" ? "http://localhost:8080/api" : "http://82.147.71.182/server"

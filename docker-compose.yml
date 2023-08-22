@@ -38,6 +38,11 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - goserver
+  
+  client:
+    build: ./astro_client/
+    ports:
+      - 3000:3000
       
   ssl:
     image: certbot/certbot

@@ -1,9 +1,48 @@
 package Http
 
 import (
+	"encoding/json"
+	"fmt"
+	api_middleware "idk/main/api/middleware"
 	"net/http"
 	"net/url"
 )
+
+type BetterResponseWriter struct {
+	w http.ResponseWriter
+}
+
+func (brw *BetterResponseWriter) AddHeader(key string, value string) *BetterResponseWriter {
+	brw.w.Header().Add(key, value)
+	return brw
+}
+func (brw *BetterResponseWriter) DeleteHeader(key string) *BetterResponseWriter {
+	brw.w.Header().Del(key)
+	return brw
+}
+func (brw *BetterResponseWriter) Status(code int) *BetterResponseWriter {
+	brw.w.WriteHeader(code)
+	return brw
+}
+func (brw *BetterResponseWriter) Send(message interface{}) {
+	data, ok := message.([]byte)
+	if !ok {
+		data_str, ok := message.(string)
+		if ok {
+			data = []byte(data_str)
+		} else {
+			var err error
+			data, err = json.Marshal(message)
+			if err != nil {
+				data = []byte(fmt.Sprint(message))
+			}
+		}
+	}
+	brw.w.Write(data)
+}
+func NewBetterResponseWriter(w http.ResponseWriter) *BetterResponseWriter {
+	return &BetterResponseWriter{w}
+}
 
 type cluster struct {
 	Mux  *http.ServeMux
@@ -16,7 +55,7 @@ func Cluster(mux *http.ServeMux, path string) *cluster {
 
 func (cluster *cluster) Rest(path string) *endpoint {
 	end_path, _ := url.JoinPath(cluster.Path, path)
-	return &endpoint{cluster.Mux, end_path, []func(w http.ResponseWriter, r *http.Request) error{}, map[string]func(w http.ResponseWriter, r *http.Request){}}
+	return Rest(cluster.Mux, end_path)
 }
 
 func Rest(mux *http.ServeMux, path string) *endpoint {
@@ -54,10 +93,16 @@ func (endpoint *endpoint) Delete(handler func(w http.ResponseWriter, r *http.Req
 
 func (endpoint *endpoint) Apply() {
 	(*endpoint.Mux).HandleFunc(endpoint.Path, func(w http.ResponseWriter, r *http.Request) {
-		if handler, ok := endpoint.Handlers[r.Method]; ok {
-			defer handler(w, r)
+		if r.Method == "OPTIONS" {
+			api_middleware.AllowCors(w, r)
+			return
+		}
+		var handler func(w http.ResponseWriter, r *http.Request)
+		if h, ok := endpoint.Handlers[r.Method]; ok {
+			handler = h
 		} else {
 			w.WriteHeader(404)
+			return
 		}
 		for _, middleware := range endpoint.Middlewares {
 			err := middleware(w, r)
@@ -65,5 +110,6 @@ func (endpoint *endpoint) Apply() {
 				return
 			}
 		}
+		handler(w, r)
 	})
 }

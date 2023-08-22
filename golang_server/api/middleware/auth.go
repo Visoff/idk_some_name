@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func AuthorizationJwt(w http.ResponseWriter, r *http.Request) error {
+func Auth(w http.ResponseWriter, r *http.Request) error {
 	token := strings.TrimPrefix((*r).Header.Get("Authorization"), "Bearer ")
 	if token == "" {
 		w.WriteHeader(401)
