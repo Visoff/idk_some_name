@@ -1,0 +1,102 @@
+@startuml System
+!include  https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "Пользователь", "Он есть(наверное)")
+
+System_Boundary(web, "Web/pwa app(services)") {
+    Container(web_tech, "Common+landing", "Astro, Svelte, Tailwind")
+    Container(web_chatting, "Chatting", "...")
+    Container(web_disk, "Disk", "...")
+    Container(web_meet, "Meatings", "..., WebRTC")
+    Container(web_calendar, "Calendar", "..., WebPush")
+}
+System_Boundary(telegram, "Telegram") {
+    System_Ext(telegram_itself, "Telegram", "Telegram app with sync chats")
+    Container(telegram_bot, "Telegram bot to sync up chats", "Python/telebot")
+}
+System_Boundary(vscode, "Vscode extantion") {
+    System_Ext(vscode_itself, "Vscode", "CodeEditor with extention")
+    Container(vscode_extention, "Extention", "TS/VScode ext")
+}
+System_Boundary(google_services, "Google services") {
+    System_Ext(google_calendar, "Google Calendar", "Sync with app's calendar")
+    System_Ext(google_drive, "Google Drive", "Sync with app's drive")
+    Container(google_middleware, "Google middleware", "Go/Node/Python")
+}
+System_Boundary(run_servers, "Run servers") {
+    Container(run_servers_api, "Api to comunicate", "Go/Node/Python")
+    Container(run_servers_place, "Place to run containers", "bash, fs")
+}
+System_Boundary(bucket, "Bucket") {
+    Container(bucket_static, "Bucket static(place to store files)")
+    Container(bucket_api, "Bucket api")
+}
+System_Boundary(backend, "Backend") {
+    Container(backend_auth, "Authinticate/Authorize request", "Go/Node/Python")
+    Container(backend_api_chatting, "Api to support chats", "Go/Node/Python")
+    Container(backend_api_drive, "Api to support drive and script running", "Go/Node/Python")
+    Container(backend_api_rtc, "Api to support web rtc rooms", "Go/Node/Python")
+    Container(backend_api_meets, "Api to support meets", "Go/Node/Python")
+    Container(backend_api_calendar, "Api to support calendars", "Go/Node/Python")
+    Container(backend_api_time_event, "Callback based event system for timed events(calendar, timed meetings, etc..)", "Go/Node/Python")
+}
+System_Boundary(database, "Database") {
+    Container(database_itself, "Database", "Postgres/Maria/SqlLite/Mongo")
+    Container(database_provider, "Database Provider(so i can place listeners and stuff)", "Go/Node/Python")
+}
+System_Ext(auth, "Auth", "Provide user authintication and sync with google")
+
+Rel(user, web_tech, "Sign in/up, Authinticate", "HTTPS")
+Rel(web_tech, auth, "Sign in/up and Authinticate users", "HTTPS/REST")
+Rel(user, web_chatting, "CRUD chats, send/recieve messages", "HTTPS")
+Rel(web_chatting, backend_api_chatting, "CRUD (only users) chats, messages", "HTTPS/Rest, WebSockets")
+Rel(user, web_meet, "CRUD own Calls, join other Calls", "HTTPS")
+Rel(web_meet, backend_api_meets, "CRUD Call", "HTTPS/Rest")
+Rel(web_meet, backend_api_rtc, "Provide offer/anser descriptions and ice candidates to other users", "HTTPS/WebSockets")
+Rel(web_meet, web_meet, "Peer to Peer connection", "HTTPS/WebRTC")
+Rel(user, web_disk, "CRUD own files, run some files in 'Run servers'", "HTTPS")
+Rel(web_disk, backend_api_drive, "CRUD files, send request to run files", "HTTPS/REST")
+Rel(user, web_calendar, "CRUD events, join them with meeting, set alerts in chats", "HTTPS")
+Rel(web_calendar, backend_api_calendar, "CRUD events, send alerts on time", "HTTPS/REST")
+
+Rel(user, telegram_itself, "use as app's chat", "Telegram")
+Rel(telegram_bot, telegram_itself, "Send and Listen for messages in chats", "Telebot")
+Rel(telegram_bot, backend_api_chatting, "Sync/Integrations", "HTTPS/REST")
+
+Rel(user, vscode_itself, "get access to some service integrations", "vscode")
+Rel(vscode_extention, auth, "Sign in/up and Authinticate users", "HTTPS/REST")
+Rel(vscode_itself, vscode_extention, "Provide eser generated actions", "vscode ext")
+Rel(vscode_extention, backend_api_chatting, "Integrations", "HTTPS/REST")
+Rel(vscode_extention, backend_api_calendar, "Integrations", "HTTPS/REST")
+Rel(vscode_extention, backend_api_drive, "Integrations", "HTTPS/REST")
+Rel(vscode_extention, backend_api_time_event, "Integrations", "HTTPS/REST")
+
+Rel(user, google_calendar, "use as app's calendar", "Google Calendar")
+Rel(user, google_drive, "use as app's drive", "Google Drive")
+Rel(google_middleware, google_calendar, "Look for changes, sync/apply them", "Google sdk")
+Rel(google_middleware, google_drive, "Look for changes, sync/apply them", "Google sdk")
+Rel(google_middleware, backend_api_calendar, "Sync changes/run event based callbacks", "HTTPS/Rest")
+Rel(google_middleware, backend_api_drive, "Sync changes/run event based callbacks", "HTTPS/Rest")
+
+Rel(backend_api_drive, run_servers_api, "Launch process", "HTTPS/REST")
+Rel(run_servers_api, run_servers_place, "Request to checkout project folder and start docker", "std")
+Rel(run_servers_place, bucket_api, "get project folder", "ftp")
+
+Rel(backend_api_drive, bucket_api, "CRUD files", "TCP/ftp?")
+Rel(bucket_api, bucket_static, "CRUD files in fs", "fs")
+
+Rel(backend_auth, auth, "Authinticate users", "HTTPS/Rest")
+Rel(backend_api_chatting, backend_auth, "Authinticate request", "middleware")
+Rel(backend_api_chatting, database_provider, "Store chats, messages, etc...", "HTTPS/Rest")
+Rel(backend_api_drive, backend_auth, "Authinticate request", "middleware")
+Rel(backend_api_calendar, backend_api_time_event, "Time launching, etc...", "HTTPS/Rest")
+Rel(backend_api_meets, backend_auth, "Authinticate request", "middleware")
+Rel(backend_api_meets, database_provider, "Store calls, etc...", "HTTPS/Rest")
+Rel(backend_api_meets, backend_api_rtc, "Provide call settings", "HTTPS/Rest")
+Rel(backend_api_calendar, backend_api_time_event, "Time meetings, etc...", "HTTPS/Rest")
+Rel(backend_api_calendar, database_provider, "Store events, etc...", "HTTPS/Rest")
+Rel(backend_api_calendar, backend_api_time_event, "Time alarms, etc...", "HTTPS/Rest")
+Rel(backend_api_time_event, database_provider, "Get timed events", "HTTPS/Rest")
+
+Rel(database_provider, database_itself, "Comunicate with database", "TCP/db_protocol")
+@endunl

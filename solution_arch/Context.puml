@@ -1,0 +1,32 @@
+@startuml System
+!include  https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "Пользователь", "Он есть(наверное)")
+
+System(web, "Web/pwa app", "Админ панель, настройка, сервис")
+System_Ext(vscode, "Vscode extantion", "Access some functinality directly from vscode")
+System_Ext(auth, "Auth", "Provide user authintication and sync with google")
+System_Ext(telegram, "Telegram", "Sync with app's chat")
+System_Ext(google_calendar, "Google Calendar", "Sync with app's calendar")
+System_Ext(google_drive, "Google Drive", "Sync with app's drive")
+System(backend, "Backend", "CRUD данных")
+System(database, "Database", "Store data")
+System(bucket, "Bucket", "Store files(in static folder = lazy)")
+System(run_servers, "Run servers", "Runs any user generated scripts on them inside of Docker")
+
+Rel(user, web, "CRUD profile, service configuration, etc", "HTTPS")
+Rel(user, vscode, "get access to some service integrations", "vscode")
+Rel(user, telegram, "use as app's chat", "Telegram")
+Rel(user, google_calendar, "use as app's calendar", "Google Calendar")
+Rel(user, google_drive, "use as app's drive", "Google Drive")
+Rel(web, auth, "Sign in/up and Authinticate users", "HTTPS/REST")
+Rel(web, backend, "Client/Server relation", "HTTPS/REST")
+Rel(vscode, auth, "Sign in/up and Authinticate users", "HTTPS/REST")
+Rel(vscode, backend, "Integrations", "HTTPS/REST")
+Rel(telegram, backend, "Sync/Integrations", "HTTPS/REST")
+Rel(google_calendar, backend, "Sync/Integrations", "HTTPS/REST")
+Rel(google_drive, backend, "Sync/Integrations", "HTTPS/REST")
+Rel(backend, database, "CRUD data", "TCP/db_protocols")
+Rel(backend, bucket, "CRUD files", "TCP/ftp?")
+Rel(backend, run_servers, "Launch process", "HTTPS/REST")
+@endunl
