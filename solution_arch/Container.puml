@@ -23,12 +23,13 @@ System_Boundary(google_services, "Google services") {
     System_Ext(google_drive, "Google Drive", "Sync with app's drive")
     Container(google_middleware, "Google middleware", "Go/Node/Python")
 }
-System_Boundary(run_servers, "Run servers") {
+System_Boundary(run_servers, "Run servers (Single machine!!)") {
     Container(run_servers_api, "Api to comunicate", "Go/Node/Python")
     Container(run_servers_place, "Place to run containers", "bash, fs")
 }
-System_Boundary(bucket, "Bucket") {
+System_Boundary(bucket, "Bucket (Single machine!!)") {
     Container(bucket_static, "Bucket static(place to store files)")
+    Container(bucket_git, "Bucket git store non editable git repo")
     Container(bucket_api, "Bucket api")
 }
 System_Boundary(backend, "Backend") {
@@ -84,6 +85,7 @@ Rel(run_servers_place, bucket_api, "get project folder", "ftp")
 
 Rel(backend_api_drive, bucket_api, "CRUD files", "TCP/ftp?")
 Rel(bucket_api, bucket_static, "CRUD files in fs", "fs")
+Rel(bucket_api, bucket_git, "CRUD repo", "bash/cmd")
 
 Rel(backend_auth, auth, "Authinticate users", "HTTPS/Rest")
 Rel(backend_api_chatting, backend_auth, "Authinticate request", "middleware")

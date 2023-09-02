@@ -5,15 +5,15 @@ jobs:
     build:
         name: deploy
         runs-on: ubuntu-latest
-        steps:
-            - name: deploy
-              uses: appleboy/ssh-action@v1.0.0
-              with:
-                host: ${{ secrets.HOST }}
-                username: ${{ secrets.USER }}
-                password: ${{ secrets.PASSWORD }}
-                script: |
-                    cd /home/ilya/messenger
-                    git pull github main
-                    docker compose down --rmi "local"
-                    docker compose up -d
+        # steps:
+            # - name: deploy
+              # uses: appleboy/ssh-action@v1.0.0
+              # with:
+                # host: ${{ secrets.HOST }}
+                # username: ${{ secrets.USER }}
+                # password: ${{ secrets.PASSWORD }}
+                # script: |
+                    # cd /home/ilya/messenger
+                    # git pull github main
+                    # docker compose down --rmi "local"
+                    # docker compose up -d

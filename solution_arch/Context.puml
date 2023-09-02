@@ -11,7 +11,7 @@ System_Ext(google_calendar, "Google Calendar", "Sync with app's calendar")
 System_Ext(google_drive, "Google Drive", "Sync with app's drive")
 System(backend, "Backend", "CRUD данных")
 System(database, "Database", "Store data")
-System(bucket, "Bucket", "Store files(in static folder = lazy)")
+System(bucket, "Bucket", "Store files(in static folder = lazy) + git repo")
 System(run_servers, "Run servers", "Runs any user generated scripts on them inside of Docker")
 
 Rel(user, web, "CRUD profile, service configuration, etc", "HTTPS")
