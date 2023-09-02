@@ -9,3 +9,5 @@ bot = telebot.TeleBot(token=token)
 @bot.message_handler(func=lambda _: True)
 def default(message):
     bot.send_message(message.chat.id, "Sorry, I don't understand that yet")
+
+bot.infinity_polling()
