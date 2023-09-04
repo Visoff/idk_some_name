@@ -41,7 +41,7 @@ func ScanOne(rows *sql.Rows) (map[string]interface{}, error) {
 	data := make(map[string]interface{})
 
 	columns, _ := rows.Columns()
-	result := make([]string, len(columns))
+	result := make([]interface{}, len(columns))
 	pointers := make([]interface{}, len(columns))
 	for i := range result {
 		pointers[i] = &result[i]
@@ -63,7 +63,7 @@ func PrepareQuery(template string, vars ...string) string {
 	}
 	result := splited[0]
 	for i, variable := range vars {
-		result = result + strings.Join(strings.Split(variable, "'"), "|") + splited[i+1]
+		result = result + variable + splited[i+1]
 	}
 	return result
 }

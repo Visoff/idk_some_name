@@ -16,7 +16,7 @@ func BodyParser(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	q := r.URL.Query()
-	q.Add("body", string(body))
+	q.Add("Body", string(body))
 	r.URL.RawQuery = q.Encode()
 	return nil
 }

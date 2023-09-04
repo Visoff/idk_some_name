@@ -9,7 +9,8 @@ import (
 )
 
 type BetterResponseWriter struct {
-	w http.ResponseWriter
+	w      http.ResponseWriter
+	status int
 }
 
 func (brw *BetterResponseWriter) AddHeader(key string, value string) *BetterResponseWriter {
@@ -21,7 +22,7 @@ func (brw *BetterResponseWriter) DeleteHeader(key string) *BetterResponseWriter 
 	return brw
 }
 func (brw *BetterResponseWriter) Status(code int) *BetterResponseWriter {
-	brw.w.WriteHeader(code)
+	brw.status = code
 	return brw
 }
 func (brw *BetterResponseWriter) Send(message interface{}) {
@@ -35,13 +36,21 @@ func (brw *BetterResponseWriter) Send(message interface{}) {
 			data, err = json.Marshal(message)
 			if err != nil {
 				data = []byte(fmt.Sprint(message))
+			} else {
+				brw.AddHeader("Content-Type", "application/json")
 			}
 		}
 	}
+	brw.w.WriteHeader(brw.status)
 	brw.w.Write(data)
 }
+
+func (brw *BetterResponseWriter) Flush() {
+	brw.w.(http.Flusher).Flush()
+}
+
 func NewBetterResponseWriter(w http.ResponseWriter) *BetterResponseWriter {
-	return &BetterResponseWriter{w}
+	return &BetterResponseWriter{w, 200}
 }
 
 type cluster struct {

@@ -3,5 +3,7 @@ go 1.20
 use (
 	./backend
 	./backend/auth
+	./backend/chat
+	./backend/db
 	./golang_library
 )

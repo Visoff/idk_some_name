@@ -1,13 +1,14 @@
 package main
 
 import (
+	"app/lib/env"
 	"backend/auth/api"
 	"fmt"
 	"net/http"
 )
 
 func main() {
-	const PORT = 8080
+	PORT := env.Env("PORT", "8080")
 
 	mux := http.NewServeMux()
 
