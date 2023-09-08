@@ -1,4 +1,4 @@
-module github.com/Visoff/idk_some_name
+module github.com/Visoff/idk_some_name/golang_library
 
 go 1.20
 

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Visoff/idk_some_name/jwt"
+	"github.com/Visoff/idk_some_name/golang_library/jwt"
 )
 
 func Auth(w http.ResponseWriter, r *http.Request) error {

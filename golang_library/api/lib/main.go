@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	api_middleware "github.com/Visoff/idk_some_name/api/middleware"
+	api_middleware "github.com/Visoff/idk_some_name/golang_library/api/middleware"
 )
 
 type BetterResponseWriter struct {
