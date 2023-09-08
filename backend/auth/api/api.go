@@ -1,8 +1,9 @@
 package api
 
 import (
-	Api_lib "app/lib/api/lib"
 	"net/http"
+
+	Api_lib "github.com/Visoff/idk_some_name/golang_library/api/lib"
 )
 
 func Init(mux *http.ServeMux) {

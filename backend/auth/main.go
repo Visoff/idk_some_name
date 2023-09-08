@@ -1,10 +1,11 @@
 package main
 
 import (
-	"app/lib/env"
 	"backend/auth/api"
 	"fmt"
 	"net/http"
+
+	"github.com/Visoff/idk_some_name/golang_library/env"
 )
 
 func main() {

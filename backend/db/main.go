@@ -1,14 +1,15 @@
 package main
 
 import (
-	Api_lib "app/lib/api/lib"
-	api_middleware "app/lib/api/middleware"
-	"app/lib/db"
-	"app/lib/env"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
+
+	Api_lib "github.com/Visoff/idk_some_name/golang_library/api/lib"
+	api_middleware "github.com/Visoff/idk_some_name/golang_library/api/middleware"
+	"github.com/Visoff/idk_some_name/golang_library/db"
+	"github.com/Visoff/idk_some_name/golang_library/env"
 )
 
 func main() {

@@ -1,13 +1,15 @@
 package main
 
 import (
-	Api_lib "app/lib/api/lib"
-	api_middleware "app/lib/api/middleware"
-	"app/lib/db"
-	"app/lib/env"
 	"fmt"
 	"net/http"
 	"strings"
+
+	Api_lib "github.com/Visoff/idk_some_name/golang_library/api/lib"
+	api_middleware "github.com/Visoff/idk_some_name/golang_library/api/middleware"
+	"github.com/Visoff/idk_some_name/golang_library/db"
+	"github.com/Visoff/idk_some_name/golang_library/env"
+	"github.com/Visoff/idk_some_name/golang_library/jwt"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -70,12 +72,6 @@ func main() {
 	mux := http.NewServeMux()
 
 	Api_lib.Rest(mux, "/").Use(api_middleware.AllowCors).Get(func(w http.ResponseWriter, r *http.Request) {
-		auth := r.URL.Query().Get("Authorization")
-		if auth == "" {
-			w.WriteHeader(400)
-			w.Write([]byte("Provide Authorization header"))
-			return
-		}
 		ws, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			w.WriteHeader(500)
@@ -85,7 +81,7 @@ func main() {
 		path := strings.Split(r.URL.Path, "/")
 		room_id := path[len(path)-1]
 
-		room := rooms.Join(room_id, auth, ws)
+		room := rooms.Join(room_id, "", ws)
 
 		defer room.Leave()
 		var message map[string]string
@@ -94,7 +90,12 @@ func main() {
 			if err != nil {
 				break
 			}
-			if message["type"] == "message" {
+			if message["type"] != "auth" && room.auth == "" {
+				ws.WriteMessage(websocket.TextMessage, []byte("Please authorize"))
+				continue
+			}
+			switch message["type"] {
+			case "message":
 				new_message := make(map[string]string)
 				new_message["type"] = "message"
 				new_message["from"] = room.auth
@@ -106,6 +107,21 @@ func main() {
 					fmt.Println(err.Error())
 					continue
 				}
+			case "auth":
+				auth, err := jwt.Use().Decode(message["token"])
+				if err != nil {
+					ws.WriteMessage(websocket.TextMessage, []byte("Incorrect token"))
+					continue
+				}
+				room.auth = auth.(string)
+				ws.WriteMessage(websocket.TextMessage, []byte("Success"))
+			case "reg":
+				auth, err := jwt.Use().Encode(message["token"])
+				if err != nil {
+					ws.WriteMessage(websocket.TextMessage, []byte(err.Error()))
+					continue
+				}
+				ws.WriteMessage(websocket.TextMessage, []byte(auth))
 			}
 		}
 	}).Apply()

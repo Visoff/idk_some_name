@@ -1,0 +1,12 @@
+{
+  "name": "network-class-rtc-sdk",
+  "version": "1.0.2",
+  "description": "",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
