@@ -1,11 +1,12 @@
 package api_middleware
 
 import (
-	"app/lib/jwt"
 	"errors"
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/Visoff/idk_some_name/jwt"
 )
 
 func Auth(w http.ResponseWriter, r *http.Request) error {

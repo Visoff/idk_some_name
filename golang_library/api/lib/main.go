@@ -1,11 +1,12 @@
 package Api_lib
 
 import (
-	api_middleware "app/lib/api/middleware"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
+
+	api_middleware "github.com/Visoff/idk_some_name/api/middleware"
 )
 
 type BetterResponseWriter struct {
