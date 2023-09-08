@@ -1,4 +1,4 @@
-module app/lib
+module github.com/Visoff/idk_some_name
 
 go 1.20
 
