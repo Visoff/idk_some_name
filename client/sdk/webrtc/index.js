@@ -34,12 +34,12 @@ const room = {}
 
 /**
  * 
- * @param {MediaStream} stream 
- * @param {string} room_id 
+ * @param {{url:string, room_id:string, stream:MediaStream}} 
  */
-async function connect(stream, room_id) {
-    const url = new URL("ws://localhost:8080/"+room_id)
-    const ws = new WebSocket(url)
+function connect({url, room_id, stream}) {
+    const url_obj = new URL(url)
+    url_obj.pathname += encodeURI(room_id)
+    const ws = new WebSocket(url_obj)
 
     var auth = ""
 
@@ -130,7 +130,7 @@ async function connect(stream, room_id) {
 
 /**
  * 
- * @param {string} event 
+ * @param {"streamchange"} event 
  * @param {(event: any) => void} func 
  */
 function addEventListener(event, func) {

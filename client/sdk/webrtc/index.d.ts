@@ -1,12 +1,15 @@
 /**
  *
- * @param {string} event
+ * @param {"streamchange"} event
  * @param {(event: any) => void} func
  */
-export function addEventListener(event: string, func: (event: any) => void): void;
+export function addEventListener(event: "streamchange", func: (event: any) => void): void;
 /**
  *
- * @param {MediaStream} stream
- * @param {string} room_id
+ * @param {{url:string, room_id:string, stream:MediaStream}}
  */
-export function connect(stream: MediaStream, room_id: string): Promise<void>;
+export function connect({ url, room_id, stream }: {
+    url: string;
+    room_id: string;
+    stream: MediaStream;
+}): void;
