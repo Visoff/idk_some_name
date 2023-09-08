@@ -49,6 +49,16 @@ func (brw *BetterResponseWriter) Flush() {
 	brw.w.(http.Flusher).Flush()
 }
 
+func (brw *BetterResponseWriter) ServerEvent(id int, event string, message interface{}) error {
+	data, err := json.Marshal(message)
+	if err != nil {
+		return err
+	}
+	brw.w.Write([]byte(`id:` + fmt.Sprint(id) + "\nevent:" + event + "\ndata:" + string(data) + "\n\n"))
+	brw.Flush()
+	return nil
+}
+
 func NewBetterResponseWriter(w http.ResponseWriter) *BetterResponseWriter {
 	return &BetterResponseWriter{w, 200}
 }
