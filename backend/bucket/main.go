@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"net/http"
 	"os"
 	"path"
@@ -21,14 +22,16 @@ func main() {
 		res.Status(200).Send(file)
 	}).Post(func(w http.ResponseWriter, r *http.Request) {
 		res := Api_lib.NewBetterResponseWriter(w)
-		req := Api_lib.NewBetterRequest(r)
 		url_path := strings.Split(r.URL.Path, "/")
 		err := os.MkdirAll(path.Join("./static/", strings.Join(url_path[:len(url_path)-1], "/")), os.ModePerm)
 		if err != nil {
 			res.Status(500).Send(err.Error())
 			return
 		}
-		data := req.Body()
+		data, err := io.ReadAll(r.Body)
+		if err != nil {
+			data = []byte("")
+		}
 		err = os.WriteFile(path.Join("./static/", url_path[len(url_path)-1]), data, os.ModePerm)
 		if err != nil {
 			res.Status(500).Send(err.Error())
