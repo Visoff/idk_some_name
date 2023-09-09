@@ -1,0 +1,13 @@
+{
+  "name": "mk-chat-sdk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "generate_types":"npx -p typescript tsc index.js --declaration --allowJs --emitDeclarationOnly"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
