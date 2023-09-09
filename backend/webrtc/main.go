@@ -30,7 +30,7 @@ func main() {
 		}
 		rooms[room][auth] = ws
 		var history []string
-		for user, _ := range rooms[room] {
+		for user := range rooms[room] {
 			history = append(history, user)
 		}
 		message := make(map[string]interface{})
@@ -43,6 +43,9 @@ func main() {
 			delete(rooms[room], auth)
 			for _, ws := range rooms[room] {
 				ws.WriteMessage(websocket.TextMessage, []byte(`{"type":"disconnect","from":"`+auth+`"}`))
+			}
+			if len(rooms[room]) == 0 {
+				delete(rooms, room)
 			}
 		}()
 
