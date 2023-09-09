@@ -3,30 +3,47 @@ package Api_lib
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
 	api_middleware "github.com/Visoff/idk_some_name/golang_library/api/middleware"
 )
 
-type BetterResponseWriter struct {
+type betterRequest struct {
+	r *http.Request
+}
+
+func (br *betterRequest) Body() []byte {
+	body, err := io.ReadAll(br.r.Body)
+	if err != nil {
+		return []byte("")
+	}
+	return body
+}
+
+func NewBetterRequest(r *http.Request) *betterRequest {
+	return &betterRequest{r}
+}
+
+type betterResponseWriter struct {
 	w      http.ResponseWriter
 	status int
 }
 
-func (brw *BetterResponseWriter) AddHeader(key string, value string) *BetterResponseWriter {
+func (brw *betterResponseWriter) AddHeader(key string, value string) *betterResponseWriter {
 	brw.w.Header().Add(key, value)
 	return brw
 }
-func (brw *BetterResponseWriter) DeleteHeader(key string) *BetterResponseWriter {
+func (brw *betterResponseWriter) DeleteHeader(key string) *betterResponseWriter {
 	brw.w.Header().Del(key)
 	return brw
 }
-func (brw *BetterResponseWriter) Status(code int) *BetterResponseWriter {
+func (brw *betterResponseWriter) Status(code int) *betterResponseWriter {
 	brw.status = code
 	return brw
 }
-func (brw *BetterResponseWriter) Send(message interface{}) {
+func (brw *betterResponseWriter) Send(message interface{}) {
 	data, ok := message.([]byte)
 	if !ok {
 		data_str, ok := message.(string)
@@ -46,11 +63,11 @@ func (brw *BetterResponseWriter) Send(message interface{}) {
 	brw.w.Write(data)
 }
 
-func (brw *BetterResponseWriter) Flush() {
+func (brw *betterResponseWriter) Flush() {
 	brw.w.(http.Flusher).Flush()
 }
 
-func (brw *BetterResponseWriter) ServerEvent(id int, event string, message interface{}) error {
+func (brw *betterResponseWriter) ServerEvent(id int, event string, message interface{}) error {
 	data, err := json.Marshal(message)
 	if err != nil {
 		return err
@@ -60,8 +77,8 @@ func (brw *BetterResponseWriter) ServerEvent(id int, event string, message inter
 	return nil
 }
 
-func NewBetterResponseWriter(w http.ResponseWriter) *BetterResponseWriter {
-	return &BetterResponseWriter{w, 200}
+func NewBetterResponseWriter(w http.ResponseWriter) *betterResponseWriter {
+	return &betterResponseWriter{w, 200}
 }
 
 type cluster struct {

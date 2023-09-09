@@ -78,6 +78,8 @@ func main() {
 				ws.WriteMessage(websocket.TextMessage, []byte(`{"type":"error","error":"Type must be provided"}`))
 			}
 			switch message_type {
+			case "ping":
+				ws.WriteMessage(websocket.TextMessage, []byte("{\"type\":\"pong\"}"))
 			case "list":
 				ws.WriteJSON(rooms[room_id])
 			case "message":

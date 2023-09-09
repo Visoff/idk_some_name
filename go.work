@@ -3,6 +3,7 @@ go 1.20
 use (
 	./backend
 	./backend/auth
+	./backend/bucket
 	./backend/chat
 	./backend/webrtc
 	./golang_library
