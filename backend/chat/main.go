@@ -19,7 +19,7 @@ func main() {
 		return
 	}
 
-	rooms := make(map[string]map[string]*websocket.Conn)
+	rooms := make(map[string]map[string]*websocket.Conn, 0)
 
 	mux := http.NewServeMux()
 
@@ -28,9 +28,6 @@ func main() {
 	Api_lib.Rest(mux, "/").Use(api_middleware.AllowCors).Get(func(w http.ResponseWriter, r *http.Request) {
 		path := strings.Split(r.URL.Path, "/")
 		room_id := path[len(path)-1]
-		if _, ok := rooms[room_id]; !ok {
-			rooms[room_id] = make(map[string]*websocket.Conn)
-		}
 		ws, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			ws.Close()
@@ -48,7 +45,17 @@ func main() {
 			ws.Close()
 			return
 		}
+		if _, ok := rooms[room_id]; !ok {
+			rooms[room_id] = make(map[string]*websocket.Conn, 0)
+		}
 		rooms[room_id][auth] = ws
+		defer func() {
+			ws.Close()
+			delete(rooms[room_id], auth)
+			if len(rooms[room_id]) == 0 {
+				delete(rooms, room_id)
+			}
+		}()
 
 		messages, err := db.Query("select * from \"Message\" where \"Chat_id\" = '%v'", room_id)
 		if err != nil {
@@ -59,18 +66,11 @@ func main() {
 			ws.WriteJSON(message)
 		}
 
-		defer func() {
-			ws.Close()
-			delete(rooms[room_id], auth)
-			if len(rooms[room_id]) == 0 {
-				delete(rooms, room_id)
-			}
-		}()
-
 		for {
 			var message map[string]interface{}
 			err := ws.ReadJSON(&message)
 			if err != nil {
+				fmt.Println(err.Error())
 				return
 			}
 			message_type, ok := message["type"].(string)
