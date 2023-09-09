@@ -35,6 +35,9 @@ services:
       db:
         condition: service_healthy
 
+  bucket_api:
+    build: ./backend/bucket
+
   nginx:
     image: nginx:1.22
     ports:
