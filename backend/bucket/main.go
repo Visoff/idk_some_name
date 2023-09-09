@@ -20,6 +20,7 @@ func main() {
 			return
 		}
 		res.Status(200).Send(file)
+		w.Header().Set("Content-Type", "application/octet-stream")
 	}).Post(func(w http.ResponseWriter, r *http.Request) {
 		res := Api_lib.NewBetterResponseWriter(w)
 		url_path := strings.Split(r.URL.Path, "/")
@@ -28,16 +29,24 @@ func main() {
 			res.Status(500).Send(err.Error())
 			return
 		}
-		data, err := io.ReadAll(r.Body)
+		r.ParseMultipartForm(10 << 20)
+		file, _, err := r.FormFile("file")
 		if err != nil {
-			data = []byte("")
+			res.Status(400).Send(err.Error())
+			return
 		}
-		err = os.WriteFile(path.Join("./static/", url_path[len(url_path)-1]), data, os.ModePerm)
+		defer file.Close()
+		filebytes, err := io.ReadAll(file)
 		if err != nil {
 			res.Status(500).Send(err.Error())
 			return
 		}
-		res.Status(200).Send(data)
+		err = os.WriteFile(path.Join("./static/", r.URL.Path), filebytes, os.ModePerm)
+		if err != nil {
+			res.Status(500).Send(err.Error())
+			return
+		}
+		res.Status(200).Send("ok")
 	}).Delete(func(w http.ResponseWriter, r *http.Request) {
 		res := Api_lib.NewBetterResponseWriter(w)
 		err := os.Remove(path.Join("./static/", r.URL.Path))
