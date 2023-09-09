@@ -18,4 +18,4 @@ function connect(chat_id, user_id) {
     })
 }
 
-connect("cbd06730-e267-462c-a431-ec0aa26b1fe4", "7e0c054f-613d-4e86-8d39-467d1ecad046")
+console.log("hello")
