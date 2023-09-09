@@ -1,0 +1,4 @@
+github.com/Visoff/idk_some_name/golang_library v0.0.0-20230909064049-247a7e9df271 h1:NiMT/KvZkb2royPBCqyrDIvTm6Iwu+J6/w3YSSRF7IQ=
+github.com/Visoff/idk_some_name/golang_library v0.0.0-20230909064049-247a7e9df271/go.mod h1:qcxFvMfLUxWbbdr3rI66unBMMm3Et0U4+FhM9nlYmHY=
+github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
+github.com/golang-jwt/jwt v3.2.2+incompatible/go.mod h1:8pz2t5EyA70fFQQSrl6XZXzqecmYZeUEB8OUGHkxJ+I=
