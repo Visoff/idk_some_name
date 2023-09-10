@@ -30,7 +30,8 @@ const servers = {
     iceCandidatesPoolSize:10
 }
 
-const room = {}
+var room = {}
+var datachannelmessagehandler = () => {}
 
 /**
  * 
@@ -51,11 +52,16 @@ function connect({url, room_id, stream}) {
         } else if (data.type == "history") {
             data.users.forEach(async user => {
                 if (user == auth) {return}
-                room[user] = new RTCPeerConnection(servers)
+                const pc = new RTCPeerConnection(servers)
+                const datachannel = pc.createDataChannel("datachannel")
+
+                datachannel.onopen = console.log
+                datachannel.onmessage = datachannelmessagehandler
+
                 stream.getTracks().forEach(track => {
-                    room[user].addTrack(track, stream)
+                    pc.addTrack(track, stream)
                 })
-                room[user].onicecandidate = (e) => {
+                pc.onicecandidate = (e) => {
                     if (e.candidate == undefined) {return}
                     ws.send(JSON.stringify({
                         type:"ice",
@@ -63,20 +69,25 @@ function connect({url, room_id, stream}) {
                         to:user
                     }))
                 }
-                const offer = await room[user].createOffer()
-                room[user].setLocalDescription(offer)
+                const offer = await pc.createOffer()
+                pc.setLocalDescription(offer)
                 ws.send(JSON.stringify({
                     type:"offer",
                     to:user,
                     offer:{sdp:offer.sdp, type:offer.type}
                 }))
+                room[user] = {pc, datachannel}
             })
         } else if (data.type == "ice") {
-            room[data.from].addIceCandidate(new RTCIceCandidate(data.candidate))
+            room[data.from].pc.addIceCandidate(new RTCIceCandidate(data.candidate))
         } else if (data.type == "offer") {
-            room[data.from] = new RTCPeerConnection(servers)
+            const pc = new RTCPeerConnection(servers)
+            pc.ondatachannel = (e) => {
+                room[data.from].datachannel = e.channel
+                e.channel.onmessage = datachannelmessagehandler
+            }
             
-            room[data.from].onicecandidate = (e) => {
+            pc.onicecandidate = (e) => {
                 if (e.candidate == undefined) {return}
                 ws.send(JSON.stringify({
                     type:"ice",
@@ -86,43 +97,44 @@ function connect({url, room_id, stream}) {
             }
             
             stream.getTracks().forEach(track => {
-                room[data.from].addTrack(track, stream)
+                pc.addTrack(track, stream)
             })
 
             const remote_stream = new MediaStream()
 
-            room[data.from].ontrack = (e) => {
+            pc.ontrack = (e) => {
                 if (e.track == undefined) {return}
                 remote_stream.addTrack(e.track)
             }
 
             addstream(remote_stream, data.from)
 
-            room[data.from].setRemoteDescription(new RTCSessionDescription(data.offer))
-            const answer = await room[data.from].createAnswer()
-            room[data.from].setLocalDescription(answer)
+            pc.setRemoteDescription(new RTCSessionDescription(data.offer))
+            const answer = await pc.createAnswer()
+            pc.setLocalDescription(answer)
             ws.send(JSON.stringify({
                 type:"answer",
                 to:data.from,
                 offer:{sdp:answer.sdp, type:answer.type}
             }))
+            room[data.from] = {pc}
         } else if (data.type == "answer") {
             if (room[data.from] == undefined) {
                 return
             }
             const stream = new MediaStream()
             
-            room[data.from].ontrack = (e) => {
+            room[data.from].pc.ontrack = (e) => {
                 if (e.track == undefined) {return}
                 stream.addTrack(e.track)
             }
             window.remote_stream = stream
 
-            room[data.from].setRemoteDescription(data.offer)
+            room[data.from].pc.setRemoteDescription(data.offer)
 
             addstream(stream, data.from)
         } else if (data.type == "disconnect") {
-            room[data.from] = undefined
+            delete(room[data.from])
             removestream(data.from)
         }
     })
@@ -130,14 +142,31 @@ function connect({url, room_id, stream}) {
 
 /**
  * 
- * @param {"streamchange"} event 
+ * @param {"streamchange"|"datachannel"} event 
  * @param {(event: any) => void} func 
  */
 function addEventListener(event, func) {
+    if (event == "datachannel") {
+            datachannelmessagehandler = func
+        return
+    }
     events[event] = func
+}
+
+/**
+ * 
+ * @param {string} message 
+ */
+function sendData(message) {
+    Object.keys(room).forEach(key => {
+        /** @type {RTCDataChannel} */
+        const datachannel = room[key].datachannel
+        datachannel.send(message)
+    })
 }
 
 module.exports = {
     addEventListener,
-    connect
+    connect,
+    sendData
 }

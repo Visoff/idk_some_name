@@ -12,7 +12,7 @@
     <div class="w-full aspect-square rounded-full bg-gray-400"></div>
     <hr class="border-gray-400">
     <Appicon url="/app/messanger" popover="Messanger" />
-    <Appicon />
+    <Appicon url="/app/meets" popover="Sync meets" />
     <Appicon />
     <Appicon />
     <Appicon />
