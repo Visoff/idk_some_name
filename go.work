@@ -4,6 +4,7 @@ use (
 	./backend/auth
 	./backend/bucket
 	./backend/chat
+	./backend/run
 	./backend/webrtc
 	./golang_library
 )
