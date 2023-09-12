@@ -2,7 +2,12 @@
 import AppSelection from '../components/nav/appselection.svelte'
 ---
 
-<main class="absolute inset-0 w-screen h-screen flex flex-row">
-	<AppSelection />
-	<slot />
+<main class="
+	absolute inset-0 w-screen h-screen
+	flex sm:flex-row flex-col-reverse
+">
+	<AppSelection client:load />
+	<div class="flex-1 flex">
+		<slot />
+	</div>
 </main>

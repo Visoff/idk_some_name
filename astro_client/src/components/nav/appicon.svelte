@@ -4,21 +4,34 @@
     export let popover:string = "Some text"
 </script>
 
-<div class="group w-full h-fit flex flex-col relative">
-    <a href={url}>
-        <img src={icon} alt="" class="w-full aspect-square rounded-full border border-gray-400">
+<div class="
+    group
+    h-pcalc(100%-1rem)] w-fit
+    sm:h-fit sm:w-full
+    aspect-square rounded-full
+    border border-gray-400
+    flex flex-col
+    relative
+    max-sm:mb-4
+">
+    <a href={url} class="h-full w-full">
+        <img src={icon} alt="" class="h-full w-full border-none">
     </a>
     <div class="
-        absolute -right-2 top-1/2 translate-x-full -translate-y-1/2
+        absolute
         w-fit h-fit
+
+        sm:-right-2 sm:top-1/2 sm:translate-x-full sm:-translate-y-1/2
+        max-sm:-bottom-5 max-sm:left-1/2 -translate-x-1/2
+
         transition-transform origin-left
-        scale-x-0 ease-out
+        sm:scale-x-0 ease-out
         group-hover:scale-x-100 group-hover:ease-in
         ">
         <span class="
-            px-2 py-3 rounded-r-full
+            px-2 py-3 sm:rounded-r-full
             text-sm whitespace-nowrap
-            bg-gray-400
+            sm:bg-gray-400
         ">
             {popover}
         </span>
