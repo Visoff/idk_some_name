@@ -34,6 +34,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
+        
+  git_api:
+    build: ./backend/git
+    volumes:
+      - ./volumes/drive:/srv/git:rw
 
   bucket_api:
     build: ./backend/bucket
