@@ -13,10 +13,16 @@ db.connect().then(() => {console.log("db connected")})
 const app = express();
 
 app.use(express.json())
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*")
+    res.setHeader("Access-Control-Allow-Methods", "*")
+    res.setHeader("Access-Control-Allow-Headers", "*")
+    next()
+})
 
 const subscribers = new Map()
 
-function sendEvent(event:{type:"insert", table:string, row:string}|{type:"update", table:string, rows:string[]}|{type:"delete", table:string}) {
+function sendEvent(event:{type:"insert", table:string, row:string}|{type:"update", table:string, rows:string[]}|{type:"delete", table:string, row:string}) {
     if (!subscribers.has(event.table)) {return}
     subscribers.get(event.table).forEach(res => {
         res.write(`event:${event.type}\ndata:${JSON.stringify(event)}\n\n`)
@@ -107,7 +113,8 @@ app.route("/:table")
         res.status(200).send(result.rows)
         sendEvent({
             "type":"delete",
-            "table":table
+            "table":table,
+            "row":result.rows[0]
         })
     }).catch(err => {
         res.status(500).send(err)
