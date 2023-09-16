@@ -172,4 +172,4 @@ function addEventListener(table, event, f) {
     })
 }
 
-// module.exports = {connect}
+module.exports = {connect}
