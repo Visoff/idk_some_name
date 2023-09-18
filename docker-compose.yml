@@ -27,16 +27,18 @@ services:
       db:
         condition: service_healthy
         
-  chat_api:
-    build: ./backend/chat
-    environment:
-      - DB_HOST=db
-    depends_on:
-      db:
-        condition: service_healthy
+  # chat_api:
+  #   build: ./backend/chat
+  #   environment:
+  #     - DB_HOST=db
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
         
   git_api:
     build: ./backend/git
+    # ports:
+    #   - 8080:8080
     volumes:
       - ./volumes/drive:/srv/git:rw
 
@@ -51,10 +53,10 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
   
-  client:
-    build: ./astro_client/
-    ports:
-      - 3000:3000
+  # client:
+  #   build: ./astro_client/
+  #   ports:
+  #     - 3000:3000
       
   ssl:
     image: certbot/certbot
