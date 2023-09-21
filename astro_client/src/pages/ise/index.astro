@@ -1,0 +1,10 @@
+---
+import HtmlDomLayout from '../../app/HtmlDomLayout.astro'
+import AppNavLayout from '../../app/AppNavLayout.svelte'
+---
+
+<HtmlDomLayout>
+    <AppNavLayout client:load>
+        <span class="flex-1">123</span>
+    </AppNavLayout>
+</HtmlDomLayout>
