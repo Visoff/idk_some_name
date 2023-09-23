@@ -1,0 +1,16 @@
+@startuml System
+!include  https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(client, "Клиент")
+
+System(auth_service, "Сервис аутентификации", "Авторизаует и переадресует запрос")
+
+System(other, "Назначение", "Куда должен дойти авторизованный запрос")
+
+' Rel(client, other, "Не авторизованный запрос", "HTTPS/REST")
+' Rel(other, auth_service, "Запрос авторизации", "HTTPS/REST")
+' Rel(auth_service, other, "Ответ авторизации", "HTTPS/REST")
+Rel(client, auth_service, "Запрос на авторизацию/переадресацию", "HTTPS/REST")
+Rel(auth_service, other, "Переадресация уже авторизованного запроса", "HTTPS/REST")
+
+@enduml
