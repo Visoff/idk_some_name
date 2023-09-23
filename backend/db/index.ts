@@ -1,4 +1,5 @@
 import express from 'express'
+import fetch from 'node-fetch'
 import pg from 'pg'
 
 const db = new pg.Client({
@@ -12,25 +13,47 @@ const db = new pg.Client({
 db.connect().then(() => {console.log("db connected")})
 const app = express();
 
+const cors = {
+    origin:process.env.CORS_ORIGIN||"*",
+    methods:process.env.CORS_METHODS||"*",
+    headers:process.env.CORS_HEADERS||"*",
+}
+
+const apikey = process.env.APIKEY||""
+
 app.use(express.json())
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*")
-    res.setHeader("Access-Control-Allow-Methods", "*")
-    res.setHeader("Access-Control-Allow-Headers", "*")
+    if (apikey && apikey != "" && req.headers.apikey != apikey) {
+        res.status(401).send(`Please provide correct "apikey" header`)
+        return
+    }
+    res.setHeader("Access-Control-Allow-Origin", cors.origin)
+    res.setHeader("Access-Control-Allow-Methods", cors.methods)
+    res.setHeader("Access-Control-Allow-Headers", cors.headers)
     next()
 })
 
 const subscribers = new Map()
+const webhook_subscribers = new Map()
 
 function sendEvent(event:{type:"insert", table:string, row:string}|{type:"update", table:string, rows:string[]}|{type:"delete", table:string, row:string}) {
-    if (!subscribers.has(event.table)) {return}
-    subscribers.get(event.table).forEach(res => {
+    if (!(subscribers.has(event.table) || webhook_subscribers.has(event.table))) {return}
+    subscribers.get(event.table)?.forEach(res => {
         res.write(`event:${event.type}\ndata:${JSON.stringify(event)}\n\n`)
         res.flushHeaders()
     });
+    
+    webhook_subscribers.get(event.table)?.forEach(hook => {
+        fetch(hook.url, {
+            method:"POST",
+            headers:JSON.parse(hook.headers),
+            body:{...hook.body, ...event}
+        })
+    })
 }
 
-app.get("/:table/subscribe", (req, res) => {
+app.route("/:table/subscribe")
+.get((req, res) => {
     const {table} = req.params
 
     res.setHeader("Content-Type", "text/event-stream")
@@ -51,6 +74,27 @@ app.get("/:table/subscribe", (req, res) => {
             subscribers.get(table).filter(el => res !== el)
         )
     })
+})
+.post((req, res) => {
+    const {table} = req.params
+    const {body} = req
+    if (!webhook_subscribers.has(table)) {
+        webhook_subscribers.set(table, [])
+    }
+    if (body.type == "webhook") {
+        try {
+            body.headers = JSON.parse(body.headers)
+        } catch {
+            body.headers = undefined
+        }
+        webhook_subscribers.get(table).push({
+            body:body.body,
+            headers:body.headers,
+            url:body.url
+        })
+        res.status(200).send(`webhook was placed for url ${body.url}`)
+    }
+    res.status(404).send("Sorry, I dont know how to subscribe to that data")
 })
 
 app.route("/:table")

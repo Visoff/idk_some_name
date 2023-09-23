@@ -1,0 +1,13 @@
+{
+  "name": "devsync_ext",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "types": "npx -p typescript tsc index.js --declaration --allowJs --emitDeclarationOnly"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

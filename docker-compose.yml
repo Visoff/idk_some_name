@@ -23,6 +23,7 @@ services:
     build: ./backend/db
     environment:
       - POSTGRES_HOST=db
+      - APIKEY=apikey
     depends_on:
       db:
         condition: service_healthy
