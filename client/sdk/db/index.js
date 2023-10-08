@@ -47,7 +47,8 @@ function insert({table, values}) {
         method:"POST",
         body:JSON.stringify(values),
         headers:{
-            "Content-Type":"application/json"
+            "Content-Type":"application/json",
+            "apikey":clientdata.apikey
         }
     }).catch(async resp => {console.error(resp.text())})
 }
@@ -99,7 +100,11 @@ function select(rows) {
     }
 
     async function query() {
-        return fetch(url).then(async resp => {
+        return fetch(url, {
+            headers:{
+                "apikey":clientdata.apikey
+            }
+        }).then(async resp => {
             if (resp.status != 200) {
                 throw new Error(await resp.text())
             } else {
@@ -129,7 +134,8 @@ function update({table, query, values}) {
         method:"PATCH",
         body:JSON.stringify(values),
         headers:{
-            "Content-Type":"application/json"
+            "Content-Type":"application/json",
+            "apikey":clientdata.apikey
         }
     })
 }
@@ -150,7 +156,8 @@ function db_delete({table, query}) {
     fetch(url, {
         method:"DELETE",
         headers:{
-            "Content-Type":"application/json"
+            "Content-Type":"application/json",
+            "apikey":clientdata.apikey
         }
     })
 }

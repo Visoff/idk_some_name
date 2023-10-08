@@ -1,13 +1,11 @@
 ---
 import HtmlDomLayout from '../../app/HtmlDomLayout.astro'
 import AppNavLayout from '../../app/AppNavLayout.svelte'
+import Windows from '../../app/Windows.svelte';
 ---
 
 <HtmlDomLayout>
     <AppNavLayout client:load>
-        <div class="flex-1 flex">
-            <div class="flex-1 bg-blue-200">123</div>
-            <div class="flex-[4] bg-blue-300">123</div>
-        </div>
+        <Windows client:load />
     </AppNavLayout>
 </HtmlDomLayout>

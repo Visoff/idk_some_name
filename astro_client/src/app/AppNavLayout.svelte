@@ -6,8 +6,6 @@
     absolute top-0 left-0 w-screen h-screen
     flex
 ">
-    <script type="module" src="/extantion/init.mjs"></script>
-    <script type="module" src="/keyboard/init.mjs"></script>
     <nav class="
         h-screen w-screen
         md:w-16

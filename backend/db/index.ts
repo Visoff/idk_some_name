@@ -23,7 +23,7 @@ const apikey = process.env.APIKEY||""
 
 app.use(express.json())
 app.use((req, res, next) => {
-    if (apikey && apikey != "" && req.headers.apikey != apikey) {
+    if (req.method != "OPTIONS" && apikey && apikey != "" && req.headers.apikey != apikey) {
         res.status(401).send(`Please provide correct "apikey" header`)
         return
     }
